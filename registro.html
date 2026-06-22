@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro Kits FV - Los Lirios</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:10px}
+.container{max-width:1000px;margin:0 auto;background:white;border-radius:8px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+h1{color:#333;border-bottom:3px solid #667eea;padding-bottom:10px}
+.form-group{margin:15px 0}
+label{display:block;font-weight:bold;margin-bottom:5px;color:#333}
+input,select,textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px;box-sizing:border-box}
+input:focus,select:focus{outline:none;border-color:#667eea;background:#f0f4ff}
+button{padding:10px 20px;margin:5px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;font-size:14px}
+.btn-add{background:#667eea;color:white}
+.btn-add:hover{background:#5568d3}
+.btn-export{background:#28a745;color:white}
+.btn-export:hover{background:#218838}
+.btn-clear{background:#dc3545;color:white}
+.btn-clear:hover{background:#c82333}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th{background:#667eea;color:white;padding:10px;text-align:left}
+td{padding:10px;border-bottom:1px solid #eee}
+tr:hover{background:#f9f9f9}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:20px 0}
+.stat{background:#f9f9f9;padding:15px;border-left:4px solid #667eea;text-align:center}
+.stat-num{font-size:24px;font-weight:bold;color:#667eea}
+.stat-label{font-size:12px;color:#666}
+.empty{text-align:center;padding:30px;color:#999}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.full{grid-column:1/-1}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>📋 Registro Kits FV - Los Lirios</h1>
+<p>Hoymiles HMS-1600-4T | Arrecife, Lanzarote</p>
+
+<div class="stats">
+<div class="stat">
+<div class="stat-num" id="total">0</div>
+<div class="stat-label">Kits Registrados</div>
+</div>
+<div class="stat">
+<div class="stat-num" id="paneles">0</div>
+<div class="stat-label">Paneles (×3)</div>
+</div>
+<div class="stat">
+<div class="stat-num" id="progreso">0%</div>
+<div class="stat-label">Progreso (60)</div>
+</div>
+</div>
+
+<div class="form-group">
+<label>🏢 Bloque</label>
+<select id="bloque">
+<option value="">--</option>
+<option value="1">Bloque 1</option>
+<option value="2">Bloque 2</option>
+<option value="3">Bloque 3</option>
+<option value="4">Bloque 4</option>
+<option value="5">Bloque 5</option>
+<option value="6">Bloque 6</option>
+<option value="7">Bloque 7</option>
+<option value="8">Bloque 8</option>
+</select>
+</div>
+
+<div class="grid">
+<div class="form-group">
+<label>🏠 Vivienda</label>
+<input type="text" id="vivienda" placeholder="V-01">
+</div>
+<div class="form-group">
+<label>📅 Fecha</label>
+<input type="date" id="fecha">
+</div>
+</div>
+
+<div class="form-group">
+<label>🔧 Nº Serie Inversor HMS-1600</label>
+<input type="text" id="inversor" placeholder="HMS1600-...">
+</div>
+
+<div class="grid">
+<div class="form-group">
+<label>☀️ Panel 1 SN</label>
+<input type="text" id="p1">
+</div>
+<div class="form-group">
+<label>☀️ Panel 2 SN</label>
+<input type="text" id="p2">
+</div>
+<div class="form-group">
+<label>☀️ Panel 3 SN</label>
+<input type="text" id="p3">
+</div>
+</div>
+
+<div class="grid">
+<div class="form-group">
+<label>📡 DTU SN</label>
+<input type="text" id="dtu">
+</div>
+<div class="form-group">
+<label>⚡ Meter SN</label>
+<input type="text" id="meter">
+</div>
+</div>
+
+<div class="grid">
+<div class="form-group">
+<label>✅ Estado</label>
+<select id="estado">
+<option value="Pendiente">Pendiente</option>
+<option value="Instalado">Instalado</option>
+<option value="Testeado">Testeado</option>
+</select>
+</div>
+<div class="form-group">
+<label>📝 Observaciones</label>
+<textarea id="obs" rows="2"></textarea>
+</div>
+</div>
+
+<div style="text-align:center">
+<button class="btn-add" onclick="agregar()">➕ Agregar Kit</button>
+<button class="btn-export" onclick="exportar()">📥 Descargar CSV</button>
+<button class="btn-clear" onclick="limpiar()">🗑️ Limpiar Form</button>
+</div>
+
+<h2>📊 Registros</h2>
+<table id="tabla">
+<thead>
+<tr><th>Bloque</th><th>Viv</th><th>Inversor</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr>
+</thead>
+<tbody id="tbody">
+<tr><td colspan="6" class="empty">Sin registros</td></tr>
+</tbody>
+</table>
+</div>
+
+<script>
+function cargar(){return JSON.parse(localStorage.getItem('kits')||'[]')}
+function guardar(d){localStorage.setItem('kits',JSON.stringify(d));actualizar()}
+function agregar(){
+let b=document.getElementById('bloque').value;
+let v=document.getElementById('vivienda').value;
+let inv=document.getElementById('inversor').value;
+if(!b||!v||!inv){alert('Completa: Bloque, Vivienda, Inversor');return}
+let kit={id:Date.now(),bloque:b,vivienda:v,inversor:inv,p1:document.getElementById('p1').value,p2:document.getElementById('p2').value,p3:document.getElementById('p3').value,dtu:document.getElementById('dtu').value,meter:document.getElementById('meter').value,estado:document.getElementById('estado').value,fecha:document.getElementById('fecha').value,obs:document.getElementById('obs').value};
+let d=cargar();
+d.push(kit);
+guardar(d);
+limpiar();
+alert('✅ Kit registrado')
+}
+function actualizar(){
+let d=cargar();
+let tb=document.getElementById('tbody');
+if(d.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">Sin registros</td></tr>';document.getElementById('total').textContent='0';document.getElementById('paneles').textContent='0';document.getElementById('progreso').textContent='0%';return}
+tb.innerHTML=d.map(k=>'<tr><td><b>'+k.bloque+'</b></td><td>'+k.vivienda+'</td><td><small>'+k.inversor+'</small></td><td>'+k.estado+'</td><td>'+k.fecha+'</td><td><button onclick="eliminar('+k.id+')" style="background:#dc3545;color:white;padding:4px 8px;border:none;border-radius:3px;cursor:pointer">X</button></td></tr>').join('');
+document.getElementById('total').textContent=d.length;
+document.getElementById('paneles').textContent=d.length*3;
+document.getElementById('progreso').textContent=Math.round(d.length/60*100)+'%'
+}
+function eliminar(id){if(!confirm('¿Eliminar?'))return;let d=cargar();d=d.filter(k=>k.id!==id);guardar(d)}
+function limpiar(){document.getElementById('bloque').value='';document.getElementById('vivienda').value='';document.getElementById('inversor').value='';document.getElementById('p1').value='';document.getElementById('p2').value='';document.getElementById('p3').value='';document.getElementById('dtu').value='';document.getElementById('meter').value='';document.getElementById('estado').value='Pendiente';document.getElementById('obs').value='';document.getElementById('fecha').valueAsDate=new Date()}
+function exportar(){let d=cargar();if(d.length===0){alert('Sin datos');return}let csv='Bloque,Vivienda,Inversor,P1,P2,P3,DTU,Meter,Estado,Fecha,Obs\n';d.forEach(k=>{csv+='"'+k.bloque+'","'+k.vivienda+'","'+k.inversor+'","'+k.p1+'","'+k.p2+'","'+k.p3+'","'+k.dtu+'","'+k.meter+'","'+k.estado+'","'+k.fecha+'","'+k.obs+'"\n'});let blob=new Blob([csv],{type:'text/csv'});let url=window.URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='kits_'+new Date().toISOString().split('T')[0]+'.csv';a.click()}
+window.addEventListener('load',()=>{document.getElementById('fecha').valueAsDate=new Date();actualizar()})
+</script>
+</body>
+</html>
