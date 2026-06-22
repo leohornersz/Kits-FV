@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Campo - Los Lirios | Kits FV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .form-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .form-compact.full {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: bold;
+            font-size: 11px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-add {
+            background: #667eea;
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .btn-add:active {
+            transform: scale(0.98);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .btn-export {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-export:active {
+            background: #218838;
+        }
+        
+        .btn-clear {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-clear:active {
+            background: #c82333;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            border-left: 3px solid #667eea;
+        }
+        
+        .stat-num {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        th {
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            word-break: break-word;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        tr:hover {
+            background: #f0f4ff;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .badge-pending {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .badge-installed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-tested {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 30px 10px;
+            color: #999;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .button-group, .form-compact {
+                display: none;
+            }
+            
+            table {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Registro Kits FV</h1>
+            <p>Los Lirios | Hoymiles HMS-1600-4T | En Campo</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num" id="totalKits">0</div>
+                <div class="stat-label">Kits Registrados</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="totalPaneles">0</div>
+                <div class="stat-label">Paneles Total</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="progreso">0%</div>
+                <div class="stat-label">Progreso (60)</div>
+            </div>
+        </div>
+        
+        <div class="form-compact">
+            <div class="form-group">
+                <label>🏢 Bloque</label>
+                <select id="bloque">
+                    <option value="">--</option>
+                    <option value="1">Bloque 1</option>
+                    <option value="2">Bloque 2</option>
+                    <option value="3">Bloque 3</option>
+                    <option value="4">Bloque 4</option>
+                    <option value="5">Bloque 5</option>
+                    <option value="6">Bloque 6</option>
+                    <option value="7">Bloque 7</option>
+                    <option value="8">Bloque 8</option>
+                    <option value="Adaptada">Vivienda Adaptada</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>🏠 Nº Vivienda</label>
+                <input type="text" id="vivienda" placeholder="V-01">
+            </div>
+            
+            <div class="form-group full">
+                <label>🔧 Nº Serie Inversor HMS</label>
+                <input type="text" id="serieInversor" placeholder="Ej: HMS1600-...">
+            </div>
+            
+            <div class="form-group">
+                <label>☀️ Panel 1 SN</label>
+                <input type="text" id="seriePanelA">
+            </div>
+            
+            <div class="form-group">
+                <label>☀️ Panel 2 SN</label>
+                <input type="text" id="seriePanelB">
+            </div>
+            
+            <div class="form-group">
+                <label>☀️ Panel 3 SN</label>
+                <input type="text" id="seriePanelC">
+            </div>
+            
+            <div class="form-group">
+                <label>📡 DTU SN</label>
+                <input type="text" id="serieDTU">
+            </div>
+            
+            <div class="form-group">
+                <label>⚡ Meter SN</label>
+                <input type="text" id="serieMeter">
+            </div>
+            
+            <div class="form-group">
+                <label>✅ Estado</label>
+                <select id="estado">
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Instalado">Instalado</option>
+                    <option value="Testeado">Testeado</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>📅 Fecha</label>
+                <input type="date" id="fecha">
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-add" onclick="agregarKit()">➕ Agregar</button>
+            <button class="btn-export" onclick="exportarCSV()">📥 Descargar</button>
+            <button class="btn-clear" onclick="limpiarForm()">🗑️ Limpiar</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="tabla">
+                <thead>
+                    <tr>
+                        <th>Bloque</th>
+                        <th>Viv</th>
+                        <th>Inversor</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="5" class="empty">Sin registros</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        function cargarDatos() {
+            return JSON.parse(localStorage.getItem('kits_lirios') || '[]');
+        }
+        
+        function guardarDatos(datos) {
+            localStorage.setItem('kits_lirios', JSON.stringify(datos));
+            actualizarTabla();
+            actualizarStats();
+        }
+        
+        function agregarKit() {
+            const bloque = document.getElementById('bloque').value;
+            const vivienda = document.getElementById('vivienda').value;
+            const serieInversor = document.getElementById('serieInversor').value;
+            
+            if (!bloque || !vivienda || !serieInversor) {
+                alert('⚠️ Bloque, Vivienda e Inversor obligatorios');
+                return;
+            }
+            
+            const kit = {
+                id: Date.now(),
+                bloque,
+                vivienda,
+                serieInversor,
+                seriePanelA: document.getElementById('seriePanelA').value,
+                seriePanelB: document.getElementById('seriePanelB').value,
+                seriePanelC: document.getElementById('seriePanelC').value,
+                serieDTU: document.getElementById('serieDTU').value,
+                serieMeter: document.getElementById('serieMeter').value,
+                estado: document.getElementById('estado').value,
+                fecha: document.getElementById('fecha').value || new Date().toISOString().split('T')[0]
+            };
+            
+            const datos = cargarDatos();
+            datos.push(kit);
+            guardarDatos(datos);
+            limpiarForm();
+            alert('✅ Kit registrado');
+        }
+        
+        function actualizarTabla() {
+            const datos = cargarDatos();
+            const tbody = document.getElementById('tableBody');
+            
+            if (datos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin registros</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = datos.map(k => `
+                <tr>
+                    <td><strong>${k.bloque}</strong></td>
+                    <td>${k.vivienda}</td>
+                    <td><small>${k.serieInversor}</small></td>
+                    <td><span class="badge badge-${k.estado.toLowerCase()}">${k.estado}</span></td>
+                    <td><button class="btn-delete" onclick="eliminar(${k.id})">X</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        function actualizarStats() {
+            const datos = cargarDatos();
+            const total = datos.length;
+            document.getElementById('totalKits').textContent = total;
+            document.getElementById('totalPaneles').textContent = total * 3;
+            document.getElementById('progreso').textContent = Math.round(total / 60 * 100) + '%';
+        }
+        
+        function eliminar(id) {
+            if (!confirm('¿Eliminar?')) return;
+            let datos = cargarDatos();
+            datos = datos.filter(k => k.id !== id);
+            guardarDatos(datos);
+        }
+        
+        function limpiarForm() {
+            document.getElementById('bloque').value = '';
+            document.getElementById('vivienda').value = '';
+            document.getElementById('serieInversor').value = '';
+            document.getElementById('seriePanelA').value = '';
+            document.getElementById('seriePanelB').value = '';
+            document.getElementById('seriePanelC').value = '';
+            document.getElementById('serieDTU').value = '';
+            document.getElementById('serieMeter').value = '';
+            document.getElementById('estado').value = 'Pendiente';
+            document.getElementById('fecha').value = '';
+        }
+        
+        function exportarCSV() {
+            const datos = cargarDatos();
+            if (datos.length === 0) {
+                alert('No hay datos para exportar');
+                return;
+            }
+            
+            let csv = 'Bloque,Vivienda,Inversor,Panel1,Panel2,Panel3,DTU,Meter,Estado,Fecha\n';
+            datos.forEach(k => {
+                csv += `"${k.bloque}","${k.vivienda}","${k.serieInversor}","${k.seriePanelA}","${k.seriePanelB}","${k.seriePanelC}","${k.serieDTU}","${k.serieMeter}","${k.estado}","${k.fecha}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Kits_LosLirios_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+        
+        // Inicializar
+        window.addEventListener('load', () => {
+            actualizarTabla();
+            actualizarStats();
+            document.getElementById('fecha').valueAsDate = new Date();
+        });
+    </script>
+</body>
+</html>
